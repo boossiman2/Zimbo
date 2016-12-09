@@ -20,7 +20,7 @@ public class PlayerMgr : MonoBehaviour {
 	private SpriteRenderer sp;
 
 	public float moveSpeed = 100.0f;
-	public float jumpSpeed = 400.0f;
+	public float jumpSpeed = 600.0f;
 
 	private float h = 0.0f;
 
