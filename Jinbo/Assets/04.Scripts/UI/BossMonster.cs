@@ -9,7 +9,8 @@ public class BossMonster : MonoBehaviour
     private Animator animator;
     private float coolDown = 5f;
     private float currentTime = 4f;
-    [SerializeField]
+
+	[SerializeField]
     private float speed = 2f;
     private float jumpSpeed = 10.0f;
 
