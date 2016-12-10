@@ -109,10 +109,8 @@ public class BossMonster : MonoBehaviour
 			if (PlayerMgr.instance._spec == PlayerMgr.playerSpec.immortal) { // 플레이어 현재 상태가 무적이면
 				Debug.Log ("영웅은 죽지 않아요.");
 			} else if (PlayerMgr.instance._spec == PlayerMgr.playerSpec.normal) { // 플레이어 현재 상태가 정상이면
-				PlayerMgr.instance._state = PlayerMgr.playerState.dead;
+				PlayerMgr.instance.isGameover = true;
 			}
 		} 
-		else if (col.name.Equals ("Sword")) {
-		}
 	}
 }

@@ -4,6 +4,16 @@ using UnityEngine.EventSystems;
 
 public class PlayerMgr : MonoBehaviour {
 	public static PlayerMgr instance;
+
+	public static PlayerMgr _instance {
+		get {
+			return instance;
+		}
+		set {
+			value = instance;
+		}
+	}
+
 	public enum playerState{	
 		idle = 0,
 		walk,
@@ -26,7 +36,7 @@ public class PlayerMgr : MonoBehaviour {
 	public float moveSpeed = 100.0f;
 	public float jumpSpeed = 600.0f;
 
-	private float h = 0.0f;
+	public float h = 0.0f;
 
 	private Vector2 topLeftPoint;
 	private Vector2 BottomRightPoint;
@@ -36,7 +46,7 @@ public class PlayerMgr : MonoBehaviour {
 	private bool isWalk = false;
 	private bool isAttack = false;
 	private bool isDrag = false;
-	private bool isGameover = false;
+	public bool isGameover = false;
 	public Vector2 direction;
 
 	private Vector3 mousePos;
@@ -47,6 +57,9 @@ public class PlayerMgr : MonoBehaviour {
 	//bool isLeftCheck;
 	//bool isRightCheck;
 
+	void Awake() {
+		instance = this;
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -65,7 +78,7 @@ public class PlayerMgr : MonoBehaviour {
 		}
 
 	
-		direction = new Vector2 (Input.GetAxis ("Horizontal"), Input.GetAxis ("Vertical"));
+		direction = new Vector2 (Input.GetAxis ("Horizontal"), Input.GetAxis("Vertical"));
 
 		if (isAttack) {
 			_state = playerState.attack;
@@ -83,7 +96,7 @@ public class PlayerMgr : MonoBehaviour {
 		//캐릭터 애니메이션 변경
 		if (anim != null) {
 			anim.SetInteger ("playerState", (int)_state);
-
+			Debug.Log (_state);
 			if (rb.velocity.y > 0.0f&&!IsGrounded()) {
 				anim.SetBool ("isJump", true);
 			} else if (rb.velocity.y < 0.0f&&!IsGrounded()) {
@@ -119,8 +132,10 @@ public class PlayerMgr : MonoBehaviour {
 			else
 				sp.flipX = false;
 			_state = playerState.walk;
-			return true;
-		} else {
+			return true; } 
+		else if (isGameover) {
+			return false;}
+		else{
 			_state = playerState.idle;
 			return false;
 		}
@@ -163,6 +178,7 @@ public class PlayerMgr : MonoBehaviour {
 	}
 
 	public void LeftDown(){
+		Debug.Log ("버튼클릭");
 		h = -1.0f;
 	}
 
