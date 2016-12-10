@@ -82,7 +82,11 @@ public class PlayerMgr : MonoBehaviour {
 			Debug.Log (_state.ToString());
 		}
 
-	
+		if (Input.GetKey (KeyCode.LeftArrow)) {
+			h = -1.0f;
+		} else if (Input.GetKey (KeyCode.RightArrow)) {
+			h = 1.0f;
+		}
 		direction = new Vector2 (Input.GetAxis ("Horizontal"), Input.GetAxis("Vertical"));
 
 		if (isAttack) {
@@ -91,6 +95,7 @@ public class PlayerMgr : MonoBehaviour {
 			isAttack = false;
 
 		}
+
 
 		else if(IsWalk()){
 			rb.velocity = new Vector3 (moveSpeed*h, rb.velocity.y);
@@ -144,17 +149,11 @@ public class PlayerMgr : MonoBehaviour {
 			else
 				sp.flipX = false;
 			_state = playerState.walk;
-<<<<<<< HEAD
 			return true;
 		} else if (isGameover) {
 			return false;
 		}else{
-=======
-			return true; } 
-		else if (isGameover) {
-			return false;}
-		else{
->>>>>>> master
+
 			_state = playerState.idle;
 			return false;
 		}
