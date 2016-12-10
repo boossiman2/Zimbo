@@ -24,8 +24,14 @@ public class MapTileManager : MonoBehaviour {
     //난수에 해당하는 타일 할당 및 생성
     private void MapInitialize()                                                 
     {
-       
-        
+        tilePrefab = Resources.Load("05.Prefabs/grass") as GameObject;
+        Vector3 scale = tilePrefab.transform.localScale;
+        scale.x = scale.x * -1;
+        tilePrefab.transform.localScale = scale;
+        Instantiate(tilePrefab, new Vector3(baseX - 5, -4, 0), Quaternion.identity);
+        Instantiate(tilePrefab, new Vector3(baseX + (5 *maxTileNumber), -4, 0), Quaternion.identity);
+        scale.x = scale.x * -1;
+        tilePrefab.transform.localScale = scale;
     }   
 
 	// Use this for initialization
@@ -37,9 +43,9 @@ public class MapTileManager : MonoBehaviour {
         maxTileNumber = 10 + (index * index);
         basePos = GameObject.Find("MapTiles");
         baseX = basePos.transform.position.x;
+        MapInitialize();
         SetMapsInStage(); 
     }
-
 
     /*
         smallCliff_tileNumber
@@ -90,23 +96,6 @@ public class MapTileManager : MonoBehaviour {
             {
                 tilePrefab = Resources.Load("05.Prefabs/grass") as GameObject;
             }
-
-            //switch (tileNumber)
-            //{
-            //    case 0:
-            //        if (smallCliff_tileNumber > 0)
-            //        {
-            //            tilePrefab = Resources.Load("Prefabs/smallCliff") as GameObject;
-            //            smallCliff_tileNumber--;
-            //        }
-            //        break;
-            //    case 1:
-            //        tilePrefab = Resources.Load("Prefabs/grass") as GameObject;
-            //        break;
-            //    case 2:
-            //        tilePrefab = Resources.Load("Prefabs/grass") as GameObject;
-            //        break;
-            //}
             Instantiate(tilePrefab, new Vector3(baseX + (i * 5), -4, 0), Quaternion.identity);
         }
     }
