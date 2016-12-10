@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-//using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -33,9 +32,14 @@ public class PlayerMgr : MonoBehaviour {
 
 	private Vector3 mousePos;
 
+	bool isLeftCheck;
+	bool isRightCheck;
+
 
 	// Use this for initialization
 	void Start () {
+
+
 
 		tr = transform;
 		rb = GetComponent<Rigidbody2D> ();
@@ -46,21 +50,24 @@ public class PlayerMgr : MonoBehaviour {
 	void FixedUpdate () {
 
 		//점프
-		if (isJump) {
+		/*if (isJump) {
 			Debug.Log ("JUMP");
 			rb.AddForce (Vector2.up * jumpSpeed);
 			isJump = false;
-		}
+		}*/
+
 		//이동
-		if (IsWalk()) {
+		/*if (IsWalk()) {
 			rb.velocity = new Vector3 (moveSpeed*h, rb.velocity.y);
-		}
+		}*/
 
 
 	}
 
 	void Update(){
-		
+		if (IsWalk()) {
+			rb.velocity = new Vector3 (moveSpeed*h, rb.velocity.y);
+		}
 
 		//캐릭터 애니메이션 변경
 		if (anim != null) {
@@ -78,30 +85,21 @@ public class PlayerMgr : MonoBehaviour {
 		}
 
 		//스페이스 누를 시 점프
-		#if UNITY_EDITOR
+		/*
 		if (Input.GetKeyDown(KeyCode.Space)&&IsGrounded ()) {
 			Debug.Log ("ground");
 			isJump = true;
 		} else 
 			isJump = false;
-		#endif
-
-		#if UNITY_ANDROID || UNITY_IPHONE
-		/*
-		if(Input.touchCount >0 && Input.GetTouch(0).phase == TouchPhase.Began && IsGrounded()){
-			isJump = true;
-		}else{
-			isJump = false;
-		}
 		*/
-		#endif
+
 	}
 
 
 	bool IsGrounded(){
 		
-		topLeftPoint = new Vector2 (tr.position.x - 0.5f, tr.position.y-1.0f);
-		BottomRightPoint = new Vector2 (tr.position.x + 0.5f, tr.position.y - 1.3f);
+		topLeftPoint = new Vector2 (tr.position.x - 0.3f, tr.position.y-0.6f);
+		BottomRightPoint = new Vector2 (tr.position.x + 0.2f, tr.position.y - 0.8f);
 
 		var hit = Physics2D.OverlapArea (topLeftPoint, BottomRightPoint, 1 << 9);
 		return(hit != null);
@@ -109,16 +107,9 @@ public class PlayerMgr : MonoBehaviour {
 
 	bool IsWalk(){
 		#if UNITY_EDITOR
-		h = Input.GetAxisRaw ("Horizontal");
+		//h = Input.GetAxisRaw ("Horizontal");
 		#endif
 
-		/*if (Input.GetMouseButton (1)) {
-			h = 1.0f;
-		} else if (Input.GetMouseButton (0)) {
-			h = -1.0f;
-		} else
-			h = 0.0f;
-		*/
 
 		if (h != 0) {
 			if (h < 0)
@@ -135,8 +126,8 @@ public class PlayerMgr : MonoBehaviour {
 
 	void OnDrawGizmos(){
 		#if UNITY_EDITOR
-		topLeftPoint = new Vector2(transform.position.x - 0.5f, transform.position.y-1.0f);
-		BottomRightPoint = new Vector2 (transform.position.x + 0.5f, transform.position.y - 1.3f);
+		topLeftPoint = new Vector2(transform.position.x - 0.3f, transform.position.y-0.6f);
+		BottomRightPoint = new Vector2 (transform.position.x + 0.2f, transform.position.y - 0.8f);
 
 		Gizmos.color = Color.blue;
 		Gizmos.DrawWireSphere(topLeftPoint, 0.1f);
@@ -145,14 +136,33 @@ public class PlayerMgr : MonoBehaviour {
 
 	}
 
-	public void OnLButtonClick(){
+	public void RightDown(){
+		h = 1.0f;
 
 	}
 
-	public void OnRButtonClick(){
-		
+	public void LeftDown(){
+		h = -1.0f;
 	}
 
+	public void ButtonUp(){
+		h = 0.0f;
+	}
+
+	public void ActionButton(){
+
+
+	}
+	public void JumpButton(){
+
+		if (IsGrounded ()) {
+			Debug.Log ("ground");
+			isJump = true;
+			rb.AddForce (Vector2.up * jumpSpeed);
+
+		} else 
+			isJump = false;
+	}
 
 
 
