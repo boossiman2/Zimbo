@@ -29,11 +29,15 @@ public class PlayerMgr : MonoBehaviour {
 	private bool isJump = false;
 	private bool isFall = false;
 	private bool isWalk = false;
+	private bool isAttack = false;
 
 	private Vector3 mousePos;
 
-	bool isLeftCheck;
-	bool isRightCheck;
+	bool bEquip_sword =  false;
+	public AnimatorOverrideController aoc;
+
+	//bool isLeftCheck;
+	//bool isRightCheck;
 
 
 	// Use this for initialization
@@ -44,16 +48,31 @@ public class PlayerMgr : MonoBehaviour {
 		anim = GetComponent<Animator> ();
 		sp = GetComponent<SpriteRenderer> ();
 
+
 	}
 
 	void Update(){
-		if (IsWalk()) {
+
+
+	
+
+		if (isAttack) {
+			_state = playerState.attack;
+			isAttack = false;
+			//StartCoroutine (StopAttack ());
+			//Debug.Log ("이즈어택공격");
+
+		}
+
+		else if(IsWalk()){
 			rb.velocity = new Vector3 (moveSpeed*h, rb.velocity.y);
 		}
+
 
 		//캐릭터 애니메이션 변경
 		if (anim != null) {
 			anim.SetInteger ("playerState", (int)_state);
+
 			if (rb.velocity.y > 0.0f) {
 				anim.SetBool ("isJump", true);
 			} else if (rb.velocity.y < 0.0f) {
@@ -104,6 +123,25 @@ public class PlayerMgr : MonoBehaviour {
 
 	}
 
+	public void Equipped(){
+		if (bEquip_sword == false) {
+			bEquip_sword = true;
+			anim.runtimeAnimatorController = aoc;
+		}
+		else{
+			if (isAttack) {
+				return;
+			}
+			//_state = playerState.attack;
+			Debug.Log ("공격");
+			isAttack = true;
+			//StartCoroutine (Attcking ());
+
+		}
+		//장착 시 공격
+
+	}
+
 	public void RightDown(){
 		h = 1.0f;
 
@@ -118,7 +156,7 @@ public class PlayerMgr : MonoBehaviour {
 	}
 
 	public void ActionButton(){
-
+		Equipped ();
 
 	}
 	public void JumpButton(){
@@ -132,7 +170,11 @@ public class PlayerMgr : MonoBehaviour {
 			isJump = false;
 	}
 
-
-
+	//IEnumerator StopAttack(){
+	//	yield return new WaitForSecondsRealtime (0.6f);
+	//	isAttack = false;
+	//
+	//}
+	
 }
  
