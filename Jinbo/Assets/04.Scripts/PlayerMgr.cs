@@ -1,9 +1,20 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class PlayerMgr : MonoBehaviour {
 	public static PlayerMgr instance;
+
+	public static PlayerMgr _instance {
+		get {
+			return instance;
+		}
+		set {
+			value = instance;
+		}
+	}
+
 	public enum playerState{	
 		idle = 0,
 		walk,
@@ -15,28 +26,31 @@ public class PlayerMgr : MonoBehaviour {
 		immortal
 	}
 	public Animator anim;
-	public playerState _state = playerState.idle;
+	public playerState _state = playerState.idle;	
 	public playerSpec _spec =playerSpec.normal;
-
+	public Button AttackBtn;
 
 	private Transform tr;
 	private Rigidbody2D rb;
 	private SpriteRenderer sp;
 
-	public float moveSpeed = 100.0f;
+	public float moveSpeed = 2.0f;
 	public float jumpSpeed = 600.0f;
 
 	private float h = 0.0f;
 
-	private Vector2 topLeftPoint;
-	private Vector2 BottomRightPoint;
+	private Vector2 gtopLeftPoint;
+	private Vector2 gBottomRightPoint;
+
+	private Vector2 mtopLeftPoint;
+	private Vector2 mBottomRightPoint;
 
 	private bool isJump = false;
 	private bool isFall = false;
 	private bool isWalk = false;
 	private bool isAttack = false;
 	private bool isDrag = false;
-	private bool isGameover = false;
+	public bool isGameover = false;
 	public Vector2 direction;
 
 	private Vector3 mousePos;
@@ -47,6 +61,9 @@ public class PlayerMgr : MonoBehaviour {
 	//bool isLeftCheck;
 	//bool isRightCheck;
 
+	void Awake() {
+		instance = this;
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -62,6 +79,7 @@ public class PlayerMgr : MonoBehaviour {
 	void Update(){
 		if (isGameover) {
 			_state = playerState.dead;
+			Debug.Log (_state.ToString());
 		}
 
 	
@@ -69,9 +87,8 @@ public class PlayerMgr : MonoBehaviour {
 
 		if (isAttack) {
 			_state = playerState.attack;
+			anim.SetInteger ("playerState", (int)_state);
 			isAttack = false;
-			//StartCoroutine (StopAttack ());
-			//Debug.Log ("이즈어택공격");
 
 		}
 
@@ -83,7 +100,7 @@ public class PlayerMgr : MonoBehaviour {
 		//캐릭터 애니메이션 변경
 		if (anim != null) {
 			anim.SetInteger ("playerState", (int)_state);
-
+			Debug.Log (_state);
 			if (rb.velocity.y > 0.0f&&!IsGrounded()) {
 				anim.SetBool ("isJump", true);
 			} else if (rb.velocity.y < 0.0f&&!IsGrounded()) {
@@ -105,9 +122,17 @@ public class PlayerMgr : MonoBehaviour {
 
 	bool IsGrounded(){
 		
-		topLeftPoint = new Vector2 (tr.position.x - 0.3f, tr.position.y-0.6f);
-		BottomRightPoint = new Vector2 (tr.position.x + 0.2f, tr.position.y - 0.8f);
-		var hit = Physics2D.OverlapArea (topLeftPoint, BottomRightPoint, 1 << 9);
+		gtopLeftPoint = new Vector2 (tr.position.x - 0.3f, tr.position.y-0.6f);
+		gBottomRightPoint = new Vector2 (tr.position.x + 0.2f, tr.position.y - 0.8f);
+		var hit = Physics2D.OverlapArea (gtopLeftPoint, gBottomRightPoint, 1 << 9);
+		return(hit != null);
+	}
+
+	bool IsFrontMonster(){
+
+		mtopLeftPoint = new Vector2 (transform.position.x + 0.2f, transform.position.y+0.6f);
+		mBottomRightPoint = new Vector2 (transform.position.x + 0.9f, transform.position.y - 0.6f);
+		var hit = Physics2D.OverlapArea (mtopLeftPoint, mBottomRightPoint, 1 << 11);
 		return(hit != null);
 	}
 
@@ -120,7 +145,9 @@ public class PlayerMgr : MonoBehaviour {
 				sp.flipX = false;
 			_state = playerState.walk;
 			return true;
-		} else {
+		} else if (isGameover) {
+			return false;
+		}else{
 			_state = playerState.idle;
 			return false;
 		}
@@ -128,12 +155,20 @@ public class PlayerMgr : MonoBehaviour {
 
 	void OnDrawGizmos(){
 		#if UNITY_EDITOR
-		topLeftPoint = new Vector2(transform.position.x - 0.3f, transform.position.y-0.6f);
-		BottomRightPoint = new Vector2 (transform.position.x + 0.2f, transform.position.y - 0.8f);
+		gtopLeftPoint = new Vector2(transform.position.x - 0.3f, transform.position.y-0.6f);
+		gBottomRightPoint = new Vector2 (transform.position.x + 0.2f, transform.position.y - 0.8f);
 
 		Gizmos.color = Color.blue;
-		Gizmos.DrawWireSphere(topLeftPoint, 0.1f);
-		Gizmos.DrawWireSphere(BottomRightPoint, 0.1f);
+		Gizmos.DrawWireSphere(gtopLeftPoint, 0.1f);
+		Gizmos.DrawWireSphere(gBottomRightPoint, 0.1f);
+
+
+		mtopLeftPoint = new Vector2(transform.position.x + 0.2f, transform.position.y+0.6f);
+		mBottomRightPoint = new Vector2 (transform.position.x + 0.9f, transform.position.y - 0.6f);
+
+		Gizmos.color = Color.red;
+		Gizmos.DrawWireSphere(mtopLeftPoint, 0.1f);
+		Gizmos.DrawWireSphere(mBottomRightPoint, 0.1f);
 		#endif
 
 	}
@@ -143,16 +178,7 @@ public class PlayerMgr : MonoBehaviour {
 			bEquip_sword = true;
 			anim.runtimeAnimatorController = aoc;
 		}
-		else{
-			if (isAttack) {
-				return;
-			}
-			//_state = playerState.attack;
-			Debug.Log ("공격");
-			isAttack = true;
-			//StartCoroutine (Attcking ());
 
-		}
 		//장착 시 공격
 
 	}
@@ -172,6 +198,9 @@ public class PlayerMgr : MonoBehaviour {
 
 	public void ActionButton(){
 		Equipped ();
+		if (bEquip_sword) {
+			Attack ();
+		}
 
 	}
 	public void JumpButton(){
@@ -191,5 +220,25 @@ public class PlayerMgr : MonoBehaviour {
 	public Vector3 getPosition(){
 		return transform.position;
 	}
+
+	public void Attack(){
+	
+
+		if (isAttack) {
+			Debug.Log ("공격중");
+			return;
+		}
+		
+		Debug.Log ("공격");
+		isAttack = true;
+		anim.SetBool ("isAttack", isAttack);
+		Invoke ("AttackBtnEnable",0.1f);
+		
+	}
+	void AttackBtnEnable(){
+		Debug.Log ("액션버튼");
+		AttackBtn.enabled = true;
+	}
+
 }
  
