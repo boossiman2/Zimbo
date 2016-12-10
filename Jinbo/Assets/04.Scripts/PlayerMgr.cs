@@ -39,28 +39,10 @@ public class PlayerMgr : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-
-
 		tr = transform;
 		rb = GetComponent<Rigidbody2D> ();
 		anim = GetComponent<Animator> ();
 		sp = GetComponent<SpriteRenderer> ();
-
-	}
-	void FixedUpdate () {
-
-		//점프
-		/*if (isJump) {
-			Debug.Log ("JUMP");
-			rb.AddForce (Vector2.up * jumpSpeed);
-			isJump = false;
-		}*/
-
-		//이동
-		/*if (IsWalk()) {
-			rb.velocity = new Vector3 (moveSpeed*h, rb.velocity.y);
-		}*/
-
 
 	}
 
@@ -84,15 +66,6 @@ public class PlayerMgr : MonoBehaviour {
 
 		}
 
-		//스페이스 누를 시 점프
-		/*
-		if (Input.GetKeyDown(KeyCode.Space)&&IsGrounded ()) {
-			Debug.Log ("ground");
-			isJump = true;
-		} else 
-			isJump = false;
-		*/
-
 	}
 
 
@@ -100,16 +73,11 @@ public class PlayerMgr : MonoBehaviour {
 		
 		topLeftPoint = new Vector2 (tr.position.x - 0.3f, tr.position.y-0.6f);
 		BottomRightPoint = new Vector2 (tr.position.x + 0.2f, tr.position.y - 0.8f);
-
 		var hit = Physics2D.OverlapArea (topLeftPoint, BottomRightPoint, 1 << 9);
 		return(hit != null);
 	}
 
 	bool IsWalk(){
-		#if UNITY_EDITOR
-		//h = Input.GetAxisRaw ("Horizontal");
-		#endif
-
 
 		if (h != 0) {
 			if (h < 0)
