@@ -3,12 +3,14 @@ using System.Collections;
 
 public class ObjectManager : MonoBehaviour {
 
-	public PlayerMgr player;
+	private GameObject player;
 	private Vector2 playerPos;
 	public bool onDrag = false;
 
 	void Awake () {
-		playerPos = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>().position;	}
+		playerPos = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>().position;
+		player = GameObject.FindGameObjectWithTag ("Player");
+	}
 			
 	void Update () {
 		if (onDrag == true) {

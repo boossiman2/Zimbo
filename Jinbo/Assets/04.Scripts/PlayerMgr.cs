@@ -37,7 +37,7 @@ public class PlayerMgr : MonoBehaviour {
 	public float moveSpeed = 2.0f;
 	public float jumpSpeed = 600.0f;
 
-	private float h = 0.0f;
+	public float h = 0.0f;
 
 	private Vector2 gtopLeftPoint;
 	private Vector2 gBottomRightPoint;
@@ -83,7 +83,7 @@ public class PlayerMgr : MonoBehaviour {
 		}
 
 	
-		direction = new Vector2 (Input.GetAxis ("Horizontal"), Input.GetAxis ("Vertical"));
+		direction = new Vector2 (Input.GetAxis ("Horizontal"), Input.GetAxis("Vertical"));
 
 		if (isAttack) {
 			_state = playerState.attack;
@@ -144,10 +144,17 @@ public class PlayerMgr : MonoBehaviour {
 			else
 				sp.flipX = false;
 			_state = playerState.walk;
+<<<<<<< HEAD
 			return true;
 		} else if (isGameover) {
 			return false;
 		}else{
+=======
+			return true; } 
+		else if (isGameover) {
+			return false;}
+		else{
+>>>>>>> master
 			_state = playerState.idle;
 			return false;
 		}
@@ -189,6 +196,7 @@ public class PlayerMgr : MonoBehaviour {
 	}
 
 	public void LeftDown(){
+		Debug.Log ("버튼클릭");
 		h = -1.0f;
 	}
 

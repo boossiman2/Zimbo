@@ -7,7 +7,6 @@ public class RayCastManager :MonoBehaviour {
 	public string DO_OK = "확인";
 	private bool isCancelable = false;
 
-
 	public ObjectManager Drag;
 	private Collider2D col;
 
@@ -22,9 +21,11 @@ public class RayCastManager :MonoBehaviour {
 		}
 
 		// Background 레이어를 제외한 것을 탐색
-
-		RaycastHit2D hit = Physics2D.Raycast(PlayerMgr.instance.getPosition(), PlayerMgr.instance.getDirection(),1,1<<10);
+		Vector2 vec2 = new Vector2(PlayerMgr.instance.h,0.0f);
+		RaycastHit2D hit = Physics2D.Raycast(PlayerMgr.instance.getPosition(), vec2 ,10,1<<10);
+		Debug.Log (PlayerMgr.instance.getDirection ());
 		if (hit.collider != null) {
+			Debug.Log (hit.collider.name);
 			Do (hit.collider);
 			col = hit.collider;
 		} 
@@ -42,7 +43,6 @@ public class RayCastManager :MonoBehaviour {
 			//uiManager.ShowToast(true, "끌고 이동할 수 없는 물체다.");
 			break;
 		case "Trap":
-			PlayerMgr.instance._state = PlayerMgr.playerState.dead;
 			break;
 		default:
 			break;

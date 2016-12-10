@@ -4,11 +4,12 @@ using System.Collections;
 public class ItemManager : MonoBehaviour {
 
 	public float immortalTime = 3.0f;
-	public float bossDelayTime = PlayerPrefs.GetFloat("DelayTime", 10.0f);
+	public float bossDelayTime = 10.0f;
 	public BossMonster bossMonster;
 	private int coin = 0;
 
 	void Start () {
+		bossDelayTime = PlayerPrefs.GetFloat ("BossDelayTime", 10.0f);
 		coin = PlayerPrefs.GetInt ("Coin", 0);
 	}
 		
@@ -22,6 +23,7 @@ public class ItemManager : MonoBehaviour {
 			PlayerMgr.instance.Equipped();
 			Destroy(this.gameObject);
 		} else if (this.name.Equals ("Immortal") && col.name.Equals ("Player")) {
+			Debug.Log ("충돌");
 			StartCoroutine (GetImmortal ());
 			this.gameObject.GetComponent<SpriteRenderer> ().enabled = false;
 		} else if (this.name.Equals ("Slow") && col.name.Equals ("Player")) {
@@ -30,12 +32,8 @@ public class ItemManager : MonoBehaviour {
     }	
 
 	public IEnumerator GetImmortal() {
-		//player.state = "Immortal";
-		Debug.Log("무적시작");
 		PlayerMgr.instance._spec = PlayerMgr.playerSpec.immortal;
 		yield return new WaitForSeconds(immortalTime);
-		//Player.state = "Normal"
-		Debug.Log("무적끝");
 		PlayerMgr.instance._spec = PlayerMgr.playerSpec.normal;
 		Destroy (this.gameObject);
 	}
