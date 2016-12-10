@@ -84,9 +84,9 @@ public class PlayerMgr : MonoBehaviour {
 		if (anim != null) {
 			anim.SetInteger ("playerState", (int)_state);
 
-			if (rb.velocity.y > 0.0f) {
+			if (rb.velocity.y > 0.0f&&!IsGrounded()) {
 				anim.SetBool ("isJump", true);
-			} else if (rb.velocity.y < 0.0f) {
+			} else if (rb.velocity.y < 0.0f&&!IsGrounded()) {
 				anim.SetBool ("isJump", false);
 				anim.SetBool ("isFall", true);
 			} else if (rb.velocity.y == 0.0f) {
