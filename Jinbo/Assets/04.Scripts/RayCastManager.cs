@@ -7,39 +7,41 @@ public class RayCastManager :MonoBehaviour {
 	public string DO_OK = "확인";
 	private bool isCancelable = false;
 
-	public Player player;
+	public PlayerSub playerSub;
 	public ObjectManager Drag;
+	private Collider2D col;
 
 	public void ClickDoButton() {
 		if (isCancelable) {
 			isCancelable = false;
 			Drag.onDrag = false;
+			if (col != null) {
+				col.attachedRigidbody.constraints = RigidbodyConstraints2D.FreezePositionX;
+			}
 			return;
 		}
 
 		// Background 레이어를 제외한 것을 탐색.
-		RaycastHit2D hit = Physics2D.Raycast(player.getPosition(), player.getDirection(),2,10);
-		Debug.Log ("작동");
+		RaycastHit2D hit = Physics2D.Raycast(playerSub.getPosition(), playerSub.getDirection(),1,1<<10);
 		if (hit.collider != null) {
-			
-			Debug.Log (hit.collider.tag);
-			Do(hit.collider);
-		}
+			Do (hit.collider);
+			col = hit.collider;
+		} 
 	}
 
 	private void Do(Collider2D collider) {
 		switch (collider.tag) {
 		case "MoveAble":
-			//uiManager.setDoButtonText(DO_OK);
+			collider.attachedRigidbody.constraints = RigidbodyConstraints2D.None;
+			collider.attachedRigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
 			Drag.onDrag = true;
 			isCancelable = true;
 			break;
 		case "UnMoveAble":
 			//uiManager.ShowToast(true, "끌고 이동할 수 없는 물체다.");
-			//uiManager.setDoButtonText(DO_OK);
-			isCancelable = true;
 			break;
-		case "장애물":
+		case "Trap":
+			PlayerSub.state = "Die";
 			break;
 		default:
 			break;
