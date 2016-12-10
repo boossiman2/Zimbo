@@ -3,15 +3,20 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class PlayerMgr : MonoBehaviour {
-
+	public static PlayerMgr instance;
 	public enum playerState{	
 		idle = 0,
 		walk,
 		attack,
 		dead
 	}
+	public enum playerSpec{
+		normal = 0,
+		immortal
+	}
 	public Animator anim;
 	public playerState _state = playerState.idle;
+	public playerSpec _spec =playerSpec.normal;
 
 
 	private Transform tr;
@@ -30,6 +35,9 @@ public class PlayerMgr : MonoBehaviour {
 	private bool isFall = false;
 	private bool isWalk = false;
 	private bool isAttack = false;
+	private bool isDrag = false;
+	private bool isGameover = false;
+	public Vector2 direction;
 
 	private Vector3 mousePos;
 
@@ -52,9 +60,12 @@ public class PlayerMgr : MonoBehaviour {
 	}
 
 	void Update(){
-
+		if (isGameover) {
+			_state = playerState.dead;
+		}
 
 	
+		direction = new Vector2 (Input.GetAxis ("Horizontal"), Input.GetAxis ("Vertical"));
 
 		if (isAttack) {
 			_state = playerState.attack;
@@ -83,6 +94,10 @@ public class PlayerMgr : MonoBehaviour {
 				anim.SetBool ("isFall", false);
 			}
 
+		}
+
+		if (_state == playerState.dead) {
+			Debug.Log ("게임오버");
 		}
 
 	}
@@ -170,11 +185,11 @@ public class PlayerMgr : MonoBehaviour {
 			isJump = false;
 	}
 
-	//IEnumerator StopAttack(){
-	//	yield return new WaitForSecondsRealtime (0.6f);
-	//	isAttack = false;
-	//
-	//}
-	
+	public Vector2 getDirection(){
+		return direction;
+	}
+	public Vector3 getPosition(){
+		return transform.position;
+	}
 }
  

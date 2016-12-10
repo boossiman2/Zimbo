@@ -3,7 +3,7 @@ using System.Collections;
 
 public class ObjectManager : MonoBehaviour {
 
-	public PlayerSub playerSub;
+	public PlayerMgr player;
 	private Vector2 playerPos;
 	public bool onDrag = false;
 
@@ -13,9 +13,9 @@ public class ObjectManager : MonoBehaviour {
 	void Update () {
 		if (onDrag == true) {
 			if (this.transform.position.x > playerPos.x) {
-				transform.parent = playerSub.transform; } 
+				transform.parent = player.transform; } 
 			else if (this.transform.position.x < playerPos.y) {
-				transform.parent = playerSub.transform; }
+				transform.parent = player.transform; }
 		} 
 		else {
 			transform.parent = null; }

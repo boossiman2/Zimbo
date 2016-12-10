@@ -33,11 +33,11 @@ public class ItemManager : MonoBehaviour {
 	public IEnumerator GetImmortal() {
 		//player.state = "Immortal";
 		Debug.Log("무적시작");
-		PlayerSub.state = "Immortal";
+		PlayerMgr.instance._spec = PlayerMgr.playerSpec.immortal;
 		yield return new WaitForSeconds(immortalTime);
 		//Player.state = "Normal"
 		Debug.Log("무적끝");
-		PlayerSub.state = "Normal";
+		PlayerMgr.instance._spec = PlayerMgr.playerSpec.normal;
 		Destroy (this.gameObject);
 	}
 }
