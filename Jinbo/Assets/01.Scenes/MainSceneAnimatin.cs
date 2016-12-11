@@ -6,13 +6,40 @@ public class MainSceneAnimatin : MonoBehaviour {
 
     [SerializeField]
     private Animator animator;
-    private float runDelay = 4.0f;
-    private float idleDelay = 1.0f;
-    private float currentTime = 0.0f;
+    [SerializeField]
+    private SpriteRenderer renderer;
+    private float runCooltime = 2.5f;
+    private float idleCooltime = 1.5f;
+
+    private int direction = 1;
     public void move()
     {
-        currentTime = runDelay;
-        transform.Translate(new Vector3(2 * Time.deltaTime, 0, 0));
+        if(runCooltime > 0)
+        {
+            animator.SetInteger("playerState", 1);
+            transform.Translate(new Vector3(2 * Time.deltaTime * direction, 0, 0));
+            runCooltime -= Time.deltaTime;
+        }  
+        else if(runCooltime <=0 && idleCooltime > 0)
+        {
+            animator.SetInteger("playerState", 0);
+            idleCooltime -= Time.deltaTime;  
+        }
+        else if(runCooltime<=0 && idleCooltime <=0)
+        {
+            idleCooltime = 1.0f;
+            runCooltime = 2.0f;
+            direction = direction * -1;
+            if(renderer.flipX)
+            {
+                renderer.flipX = false;
+            }
+            else
+            {
+                renderer.flipX = true;
+            }
+            
+        }
 
     }
 
@@ -23,6 +50,6 @@ public class MainSceneAnimatin : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
+        move();
 	}
 }

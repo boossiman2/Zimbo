@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerMgr : MonoBehaviour {
 	public static PlayerMgr instance;
@@ -19,7 +20,8 @@ public class PlayerMgr : MonoBehaviour {
 		idle = 0,
 		walk,
 		attack,
-		dead
+		dead,
+		push
 	}
 	public enum playerSpec{
 		normal = 0,
@@ -29,13 +31,16 @@ public class PlayerMgr : MonoBehaviour {
 	public playerState _state = playerState.idle;	
 	public playerSpec _spec =playerSpec.normal;
 	public Button AttackBtn;
+	public GameObject JBtn;
+	public GameObject ABtn;
+	public GameObject GBtn;
 
 	private Transform tr;
 	private Rigidbody2D rb;
 	private SpriteRenderer sp;
 
-	public float moveSpeed = 2.0f;
-	public float jumpSpeed = 600.0f;
+	public float moveSpeed = PlayerPrefs.GetFloat("RunStatus", 2.5f);
+	public float jumpSpeed = PlayerPrefs.GetFloat("JumpStatus", 600.0f);
 
 	public float h = 0.0f;
 
@@ -57,12 +62,29 @@ public class PlayerMgr : MonoBehaviour {
 
 	bool bEquip_sword =  false;
 	public AnimatorOverrideController aoc;
+	public GameObject smgr;
+
+
+
+
+	public AudioClip jumpSound;
+	public AudioClip landSound; 
+	//public AudioClip moveSound; 
+	public AudioClip diedSound;
+	public AudioClip attackSound;
+
+
+
+
 
 	//bool isLeftCheck;
 	//bool isRightCheck;
 
 	void Awake() {
+		smgr = GameObject.Find ("SoundMgr");
+		Destroy (smgr);
 		instance = this;
+
 	}
 
 	// Use this for initialization
@@ -72,31 +94,36 @@ public class PlayerMgr : MonoBehaviour {
 		rb = GetComponent<Rigidbody2D> ();
 		anim = GetComponent<Animator> ();
 		sp = GetComponent<SpriteRenderer> ();
-
+		jumpSound = (AudioClip)Resources.Load("Sound/LandingFromJump01");
+		//landSound = (AudioClip)Resources.Load("Sound/LandingFromJump02");
+		//moveSound = (AudioClip)Resources.Load("Sound/Move");
+		diedSound = (AudioClip)Resources.Load("Sound/Died");
+		attackSound = (AudioClip)Resources.Load("Sound/Attack");
 
 	}
 
 	void Update(){
+		IsFall ();
 		if (isGameover) {
-			_state = playerState.dead;
-			Debug.Log (_state.ToString());
+			anim.SetBool ("isDead", true);
+			SceneManager.LoadScene ("Died");
+
+		}
+		IsPush ();
+		if (IsFrontMovableObject()) {
+			GBtn.SetActive (true);
+		} else {
+			GBtn.SetActive (false);
 		}
 
-		if (Input.GetKey (KeyCode.LeftArrow)) {
-			h = -1.0f;
-		} else if (Input.GetKey (KeyCode.RightArrow)) {
-			h = 1.0f;
-		}
 		direction = new Vector2 (Input.GetAxis ("Horizontal"), Input.GetAxis("Vertical"));
 
 		if (isAttack) {
 			_state = playerState.attack;
 			anim.SetInteger ("playerState", (int)_state);
+			PlaySoundClip (attackSound);
 			isAttack = false;
-
 		}
-
-
 		else if(IsWalk()){
 			rb.velocity = new Vector3 (moveSpeed*h, rb.velocity.y);
 		}
@@ -108,12 +135,14 @@ public class PlayerMgr : MonoBehaviour {
 			Debug.Log (_state);
 			if (rb.velocity.y > 0.0f&&!IsGrounded()) {
 				anim.SetBool ("isJump", true);
+
 			} else if (rb.velocity.y < 0.0f&&!IsGrounded()) {
 				anim.SetBool ("isJump", false);
 				anim.SetBool ("isFall", true);
 			} else if (rb.velocity.y == 0.0f) {
 				anim.SetBool ("isJump", false);
 				anim.SetBool ("isFall", false);
+
 			}
 
 		}
@@ -141,14 +170,30 @@ public class PlayerMgr : MonoBehaviour {
 		return(hit != null);
 	}
 
+	bool IsFrontMovableObject(){
+		mtopLeftPoint = new Vector2 (transform.position.x + 0.2f, transform.position.y+0.6f);
+		mBottomRightPoint = new Vector2 (transform.position.x + 0.9f, transform.position.y - 0.6f);
+		var hit = Physics2D.OverlapArea (mtopLeftPoint, mBottomRightPoint, 1 << 10);
+		return(hit != null);
+	}
+
 	bool IsWalk(){
 
 		if (h != 0) {
-			if (h < 0)
-				sp.flipX = true;
-			else
-				sp.flipX = false;
-			_state = playerState.walk;
+			if (IsPush()) {
+				h = h * 0.4f;
+				_state = playerState.push;
+			}
+			else {
+				
+				if (h < 0)
+					sp.flipX = true;
+				else
+					sp.flipX = false;
+				
+				_state = playerState.walk;
+				//PlaySoundClip (moveSound);
+			}
 			return true;
 		} else if (isGameover) {
 			return false;
@@ -183,6 +228,8 @@ public class PlayerMgr : MonoBehaviour {
 		if (bEquip_sword == false) {
 			bEquip_sword = true;
 			anim.runtimeAnimatorController = aoc;
+			ABtn.SetActive (true);
+
 		}
 
 		//장착 시 공격
@@ -191,11 +238,12 @@ public class PlayerMgr : MonoBehaviour {
 
 	public void RightDown(){
 		h = 1.0f;
+		Debug.Log ("오");
 
 	}
 
 	public void LeftDown(){
-		Debug.Log ("버튼클릭");
+		Debug.Log ("왼");
 		h = -1.0f;
 	}
 
@@ -216,6 +264,7 @@ public class PlayerMgr : MonoBehaviour {
 			Debug.Log ("ground");
 			isJump = true;
 			rb.AddForce (Vector2.up * jumpSpeed);
+			PlaySoundClip (jumpSound);
 
 		} else 
 			isJump = false;
@@ -246,6 +295,53 @@ public class PlayerMgr : MonoBehaviour {
 		Debug.Log ("액션버튼");
 		AttackBtn.enabled = true;
 	}
+	bool IsPush(){
+		if (this.transform.childCount == 0) {
+			JBtn.SetActive (true);
+			return false;
+		} else
+			JBtn.SetActive (false);
+			return true;
+	}
+	public void PlaySoundClip(AudioClip ac){
+		AudioSource.PlayClipAtPoint (ac, this.transform.position);
+	}
+
+	public bool IsFall(){
+		if (this.transform.position.y < -3) {
+			isGameover = true;
+			return true;
+		}
+		else
+			return false;
+
+	}
+
+	public void OnTriggerEnter2D(Collider2D col) {
+		if(col.name.Equals("flower")){
+			MapTileManager.FlowerCount ();
+			if (SceneManager.GetActiveScene ().name == "Stage1") {
+				GameSceneManager.ChangeScene ("Stage2");
+			}
+			if (SceneManager.GetActiveScene ().name == "Stage2") {
+				GameSceneManager.ChangeScene ("Stage3");
+			}
+			if (SceneManager.GetActiveScene ().name == "Stage3") {
+				GameSceneManager.ChangeScene ("Stage4");
+			}
+			if (SceneManager.GetActiveScene ().name == "Stage4") {
+				GameSceneManager.ChangeScene ("Stage5");
+			}
+			if (SceneManager.GetActiveScene ().name == "Stage5") {
+				GameSceneManager.ChangeScene ("Stage6");
+			}
+			if (SceneManager.GetActiveScene ().name == "Stage6") {
+				GameSceneManager.ChangeScene ("Died");
+			}
+
+		}
+	}
+
 
 }
  

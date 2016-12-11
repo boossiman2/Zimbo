@@ -9,16 +9,17 @@ public class ItemManager : MonoBehaviour {
 	private int coin = 0;
 
 	void Start () {
-		bossDelayTime = PlayerPrefs.GetFloat ("BossDelayTime", 10.0f);
+		bossDelayTime = PlayerPrefs.GetFloat ("DurationStatus", 10.0f);
 		coin = PlayerPrefs.GetInt ("Coin", 0);
 	}
 		
 	void OnTriggerEnter2D(Collider2D col)
 	{
-		if (this.name.Equals ("Coin") && col.name.Equals ("Player")) { // 코인 획득
+		if (this.tag.Equals("Coin") && col.name=="Player") { // 코인 획득
 			Destroy (this.gameObject);
 			coin += 1;
-			Debug.Log ("Coin +1");
+			PlayerPrefs.SetInt ("Coin", coin);
+
 		} else if (this.name.Equals ("Sword") && col.name.Equals ("Player")) { // 칼 획득
 			PlayerMgr.instance.Equipped();
 			Destroy(this.gameObject);

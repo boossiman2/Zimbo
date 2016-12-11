@@ -7,15 +7,15 @@ public class RayCastManager :MonoBehaviour {
 	public string DO_OK = "확인";
 	private bool isCancelable = false;
 
-	public ObjectManager Drag;
+	public ObjectManager objManger;
 	private Collider2D col;
 
 	public void ClickDoButton() {
 		if (isCancelable) {
 			isCancelable = false;
-			Drag.onDrag = false;
+			objManger.onDrag = false;
 			if (col != null) {
-				col.attachedRigidbody.constraints = RigidbodyConstraints2D.FreezePositionX;
+				col.attachedRigidbody.constraints = RigidbodyConstraints2D.FreezeAll;
 			}
 			return;
 		}
@@ -23,9 +23,7 @@ public class RayCastManager :MonoBehaviour {
 		// Background 레이어를 제외한 것을 탐색
 		Vector2 vec2 = new Vector2(PlayerMgr.instance.h,0.0f);
 		RaycastHit2D hit = Physics2D.Raycast(PlayerMgr.instance.getPosition(), vec2 ,10,1<<10);
-		Debug.Log (PlayerMgr.instance.getDirection ());
 		if (hit.collider != null) {
-			Debug.Log (hit.collider.name);
 			Do (hit.collider);
 			col = hit.collider;
 		} 
@@ -36,7 +34,7 @@ public class RayCastManager :MonoBehaviour {
 		case "MoveAble":
 			collider.attachedRigidbody.constraints = RigidbodyConstraints2D.None;
 			collider.attachedRigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
-			Drag.onDrag = true;
+			objManger.onDrag = true;
 			isCancelable = true;
 			break;
 		case "UnMoveAble":
